@@ -62,8 +62,8 @@ def read_fasta(fasta_file: Path) -> str:
     :return: (str) Sequence from the genome. 
     """
     sequence = ""
-    with open(fasta_file, "r") as file:
-        lines = file.readlines()
+    with open(fasta_file, "r") as monfich:
+        lines = monfich.readlines()
         for line in lines:
             if not line.startswith(">"):
                 sequence += line.strip("\n").upper() 
@@ -97,12 +97,12 @@ def find_stop(stop_regex: Pattern, sequence: str, start: int) -> Union[int, None
     match = stop_regex.search(sequence, start)
 
     while match:
-        stop_position = match.start(0)
+        stop_pos = match.start(0)
         
-        if (stop_position - start) % 3 == 0:
-            return stop_position
+        if (stop_pos - start) % 3 == 0:
+            return stop_pos
         
-        match = stop_regex.search(sequence, stop_position + 1)
+        match = stop_regex.search(sequence, stop_pos + 1)
 
     return None
 
@@ -238,18 +238,12 @@ def main() -> None: # pragma: no cover
     min_gap = args.min_gap
     max_shine_dalgarno_distance = args.max_shine_dalgarno_distance
     # Let us do magic in 5' to 3'
-    
-    # Don't forget to uncomment !!!
-    # Call these function in the order that you want
-    # We reverse and complement
+
     sequence = read_fasta(args.genome_file)
     probable_genes = predict_genes(sequence, start_regex, stop_regex, shine_regex,
                                    args.min_gene_len, args.max_shine_dalgarno_distance,
                                    args.min_gap)
 
-    # Don't forget to uncomment !!!
-    # Call these function in the order that you want
-    # We reverse and complement
     sequence_rc = reverse_complement(sequence)
     probable_genes_comp = predict_genes(sequence_rc, start_regex, stop_regex, shine_regex,
                                         args.min_gene_len, args.max_shine_dalgarno_distance,
