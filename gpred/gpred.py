@@ -60,7 +60,13 @@ def read_fasta(fasta_file: Path) -> str:
     :param fasta_file: (Path) Path to the fasta file.
     :return: (str) Sequence from the genome. 
     """
-    pass
+    sequence = ""
+    with open(fasta_file, "r") as file:
+        lines = file.readlines()
+        for line in lines:
+            if not line.startswith(">"): 
+                sequence += line.strip()  
+    return sequence.upper() 
 
 
 def find_start(start_regex: Pattern, sequence: str, start: int, stop: int) -> Union[int, None]:
@@ -72,7 +78,11 @@ def find_start(start_regex: Pattern, sequence: str, start: int, stop: int) -> Un
     :param stop: (int) Stop position of the research
     :return: (int) If exist, position of the start codon. Otherwise None. 
     """
-    pass
+    match = start_regex.search(sequence, start, stop)
+    if match:
+        return match.start(0)
+    else:
+        return None
 
 
 def find_stop(stop_regex: Pattern, sequence: str, start: int) -> Union[int, None]:
@@ -83,7 +93,17 @@ def find_stop(stop_regex: Pattern, sequence: str, start: int) -> Union[int, None
     :param start: (int) Start position of the research
     :return: (int) If exist, position of the stop codon. Otherwise None. 
     """
-    pass
+    match = stop_regex.search(sequence, start)
+
+    while match:
+        stop_position = match.start(0)
+        # Vérifier si la position est un multiple de trois par rapport à la position de départ.
+        if (stop_position - start) % 3 == 0:
+            return stop_position
+        # Continuer la recherche à partir de la fin du dernier match.
+        match = stop_regex.search(sequence, stop_position + 1)
+
+    return None
 
 
 def has_shine_dalgarno(shine_regex: Pattern, sequence: str, start: int, max_shine_dalgarno_distance: int) -> bool:
